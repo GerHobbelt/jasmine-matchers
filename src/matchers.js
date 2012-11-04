@@ -2,8 +2,7 @@ beforeEach(function() {
     
     this.addMatchers({
         toBeArray: function() {
-            
-            return {}.toString.call(this.actual) === '[object Array]';
+            return _isArray(this.actual);
         },
         toBeInstanceOf: function(Constructor) {
 
@@ -29,9 +28,10 @@ beforeEach(function() {
             return this.actual.length < length;
         },
         toHaveProperties: function(name0, name1, name2) {
+            var args = _fixArguments(arguments);
             var actual = this.actual;
-            for (var i = 0, len = arguments.length; i < len; i += 1) {
-                if (!(arguments[i] in actual)) {
+            for (var i = 0, len = args.length; i < len; i += 1) {
+                if (!(args[i] in actual)) {
                     return false;
                 }
             }
@@ -41,9 +41,9 @@ beforeEach(function() {
             var actual = this.actual;
             var hasOwn = {}.hasOwnProperty;
             var prop;
-
-            for (var i = 0, len = arguments.length; i < len; i += 1) {
-                prop = arguments[i];
+            var args = _fixArguments(arguments);
+            for (var i = 0, len = args.length; i < len; i += 1) {
+                prop = args[i];
                 if (!hasOwn.call(actual, prop) &&
                     typeof actual[prop] === 'function') {
                     return false;
@@ -54,8 +54,9 @@ beforeEach(function() {
         toHaveOwnProperties: function(name0, name1, name2) {
             var actual = this.actual;
             var hasOwn = {}.hasOwnProperty;
-            for (var i = 0, len = arguments.length; i < len; i += 1) {
-                if (!hasOwn.call(actual, arguments[i])) {
+            var args = _fixArguments(arguments);
+            for (var i = 0, len = args.length; i < len; i += 1) {
+                if (!hasOwn.call(actual, args[i])) {
                     return false;
                 }
             }
@@ -76,44 +77,13 @@ beforeEach(function() {
             var a = this.actual, p;
             for( p in obj){
                 if(!a.hasOwnProperty(p)) return false;
-                if(! deepEqual(a[p],obj[p])) return false;
+                if(! _deepEqual(a[p],obj[p])) return false;
             }
             return true;
         },
         ///////
-        //TODO: Make internal recursive method, so we can deep compare.
         toMatchObject:function(x){
-            //var p, s, actual = this.actual;
-            return deepEqual(this.actual, x);
-            /*
-            for(p in actual) {
-                if(typeof(x[p])=='undefined') {return false;}
-            }
-
-            for(p in actual) {
-                s = actual[p];
-                if (s) {
-                    switch(typeof(s)) {
-                        case 'object':
-                            if (!actual[p].equals(x[p])) { return false; } break;
-                        case 'function':
-                            if (typeof(x[p])=='undefined' ||
-                                (p != 'equals' && actual[p].toString() != x[p].toString()))
-                                return false;
-                        break;
-                        default:
-                            if (actual[p] != x[p]) { return false; }
-                    }
-                } else {
-                    if (x[p]) return false;
-                }
-            }
-
-            for(p in x) {
-                if(typeof(actual[p])=='undefined') {return false;}
-            }
-
-            return true; */
+            return _deepEqual(this.actual, x);
         },
         toNotMatchObject:function(object){
             return this.toMatchObject(object) === false;
@@ -122,11 +92,11 @@ beforeEach(function() {
             return this.actual !== object;
         },
         //////
-        toThrowInstanceOf: function(ExceptionType) {
+        toThrowInstanceOf: function(klass) {
             try {
                 this.actual();
             } catch (e) {
-                return e instanceof ExceptionType;
+                return e instanceof klass;
             }
             return false;
         },
@@ -148,50 +118,66 @@ beforeEach(function() {
             return containsOnce;
         },
         toEndWith: function(value) {
-            return endsWith(this.actual, value);
+            return _endsWith(this.actual, value);
         },
         toEachEndWith: function(searchString) {
             var arrayOfStrings = this.actual;
             return arrayOfStrings.every(function(oneValue) {
-                return endsWith(oneValue, searchString);
+                return _endsWith(oneValue, searchString);
             });
         },
         toSomeEndWith: function(searchString) {
             var arrayOfStrings = this.actual;
             return arrayOfStrings.some(function(oneValue) {
-                return endsWith(oneValue, searchString);
+                return _endsWith(oneValue, searchString);
             });
         }
 
     });
 });
 
-function endsWith(haystack, needle){
+function _fixArguments(args, keepBoxed){
+    var a = Array.prototype.splice.call(args,0);
+
+    if(!keepBoxed &&
+       _isArray(a[0]) &&
+       a.length === 1) return a[0];
+
+    return a;
+}
+
+function _isArray(item){
+    return {}.toString.call(item) === '[object Array]';
+}
+
+
+function _endsWith(haystack, needle){
   return haystack.substr(-needle.length) == needle;
 }
 
-function deepEqual(a,b){
-    if (typeof a != "object" || typeof b != "object") {
-        return a === b;
-    }
+/**
+ * Deep equal compare.
+ * @param  {Object} a Object to compare
+ * @param  {Object} b Object to compare
+ * @return {Boolean}
+ */
+function _deepEqual(a,b){
 
+    if (typeof a != "object" ||
+        typeof b != "object") return a === b;
 
-    if (a === b) {
-        return true;
-    }
+    if (a === b) return true;
 
-    var aString = Object.prototype.toString.call(a);
-    if (aString != Object.prototype.toString.call(b)) {
+    var aString = {}.toString.toString.call(a);
+    if (aString !== {}.toString.toString.call(b)) {
         return false;
     }
 
-    if (aString == "[object Array]") {
-        if (a.length !== b.length) {
-            return false;
-        }
+    if(aString === "[object Array]") {
+        if (a.length !== b.length) return false;
 
         for (var i = 0, l = a.length; i < l; i += 1) {
-            if (!deepEqual(a[i], b[i])) {
+            if (!_deepEqual(a[i], b[i])) {
                 return false;
             }
         }
@@ -202,20 +188,13 @@ function deepEqual(a,b){
     var prop, aLength = 0, bLength = 0;
 
     for (prop in a) {
-        aLength += 1;
-
-        if (!deepEqual(a[prop], b[prop])) {
-            return false;
-        }
+        ++aLength;
+        if (!_deepEqual(a[prop], b[prop])) return false;
     }
 
-    for (prop in b) {
-        bLength += 1;
-    }
+    for (prop in b) ++bLength;
 
-    if (aLength != bLength) {
-        return false;
-    }
+    if (aLength != bLength) return false;
 
     return true;
-};
+}
