@@ -24,6 +24,7 @@ The [Jasmine testing framework](http://pivotal.github.com/jasmine/) from [Pivota
     expect(x).toHaveLengthSmallerThan(length);
     expect(x).toHaveProperties(...properties);
     expect(x).toHaveMethods(...methods);
+    expect(x).toHaveOwnMethods(...methods);
     expect(x).toHaveOwnProperties(...properties);
     expect(x).toEachHave(attr, val);
     expect(x).toHavePropertieValue(attr, val);

@@ -40,16 +40,31 @@ beforeEach(function() {
         toHaveMethods:function(){
             var actual = this.actual;
             var hasOwn = {}.hasOwnProperty;
-            var prop;
+            var prop, output = 0;
             var args = _fixArguments(arguments);
             for (var i = 0, len = args.length; i < len; i += 1) {
                 prop = args[i];
-                if (!hasOwn.call(actual, prop) &&
-                    typeof actual[prop] === 'function') {
-                    return false;
+
+                if(prop in actual){
+                    if(typeof actual[prop] !== 'function') return false;
+                    else ++output;
                 }
             }
-            return true;
+            return args.length === output;
+        },
+        toHaveOwnMethods:function(){
+            var actual = this.actual;
+            var hasOwn = {}.hasOwnProperty;
+            var prop, output = 0;
+            var args = _fixArguments(arguments);
+            for (var i = 0, len = args.length; i < len; i += 1) {
+                prop = args[i];
+                if(hasOwn.call(actual, prop)){
+                    if(typeof actual[prop] !== 'function') return false;
+                    else ++output;
+                }
+            }
+            return args.length === output;
         },
         toHaveOwnProperties: function(name0, name1, name2) {
             var actual = this.actual;
@@ -81,7 +96,6 @@ beforeEach(function() {
             }
             return true;
         },
-        ///////
         toMatchObject:function(x){
             return _deepEqual(this.actual, x);
         },
@@ -91,7 +105,6 @@ beforeEach(function() {
         toNotMatch:function(object){
             return this.actual !== object;
         },
-        //////
         toThrowInstanceOf: function(klass) {
             try {
                 this.actual();
@@ -149,37 +162,24 @@ function _fixArguments(args, keepBoxed){
 function _isArray(item){
     return {}.toString.call(item) === '[object Array]';
 }
-
-
 function _endsWith(haystack, needle){
   return haystack.substr(-needle.length) == needle;
 }
 
-/**
- * Deep equal compare.
- * @param  {Object} a Object to compare
- * @param  {Object} b Object to compare
- * @return {Boolean}
- */
 function _deepEqual(a,b){
-
     if (typeof a != "object" ||
-        typeof b != "object") return a === b;
+     typeof b != "object") return a === b;
 
     if (a === b) return true;
 
-    var aString = {}.toString.toString.call(a);
-    if (aString !== {}.toString.toString.call(b)) {
-        return false;
-    }
+    var aString = {}.toString.call(a);
+    if (aString !={}.toString.call(b)) return false;
 
-    if(aString === "[object Array]") {
+    if (aString == "[object Array]") {
         if (a.length !== b.length) return false;
 
         for (var i = 0, l = a.length; i < l; i += 1) {
-            if (!_deepEqual(a[i], b[i])) {
-                return false;
-            }
+            if (!_deepEqual(a[i], b[i])) return false;
         }
 
         return true;
@@ -189,6 +189,7 @@ function _deepEqual(a,b){
 
     for (prop in a) {
         ++aLength;
+
         if (!_deepEqual(a[prop], b[prop])) return false;
     }
 
