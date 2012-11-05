@@ -17,6 +17,14 @@ beforeEach(function() {
 
             return typeof this.actual === type;
         },
+        toBeCloneOf:function(source){
+            return this.actual.constructor === source.constructor &&
+                   this.actual.prototype   === source.prototype;
+        },
+        toNotBeCloneOf:function(source){
+            return this.actual.constructor !== source.constructor ||
+                   this.actual.prototype   !== source.prototype;
+        },
         toHaveLength: function(length) {
 
             return this.actual.length === length;

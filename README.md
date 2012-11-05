@@ -27,6 +27,8 @@ The [Jasmine testing framework](http://pivotal.github.com/jasmine/) from [Pivota
     expect(x).toHaveOwnMethods(...methods);
     expect(x).toHaveOwnProperties(...properties);
     expect(x).toEachHave(attr, val);
+    expect(x).toBeCloneOf(source);
+    expect(x).toNotBeCloneOf(source);
     expect(x).toHavePropertieValue(attr, val);
     expect(x).toIncludeObject(object);
     expect(x).toMatchObject(object);
