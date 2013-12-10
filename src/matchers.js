@@ -26,8 +26,7 @@ beforeEach(function() {
                    this.actual.prototype   !== source.prototype;
         },
         toHaveLength: function(length) {
-
-            return this.actual.length === length;
+            return _lengthOf(this.actual) === length;
         },
         toHaveLengthGreaterThan:function(length){
             return this.actual.length > length;
