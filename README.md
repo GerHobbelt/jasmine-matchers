@@ -34,6 +34,7 @@ The [Jasmine testing framework](http://pivotal.github.com/jasmine/) from [Pivota
     expect(x).toMatchObject(object);
     expect(x).toNotMatchObject(object); //not.toMatchObject(object);
     expect(x).toNotMatch(object);
+    expect(x).toMatchLengthOf(object);
     expect(x).toThrowInstanceOf(ExceptionType);
     expect(x).toHaveBeenCalledXTimes(count);
     expect(x).toContainOnce(value);
