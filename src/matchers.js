@@ -114,8 +114,6 @@ beforeEach(function() {
             return this.actual !== object;
         },
         toMatchLengthOf:function(target){
-            console.log('length of ', _lengthOf(this.actual))
-            console.log('length of ', _lengthOf(target))
             return _lengthOf(this.actual) === _lengthOf(target);
         },
         toThrowInstanceOf: function(klass) {
