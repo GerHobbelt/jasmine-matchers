@@ -10,7 +10,7 @@ var i, l;
 
 if (typeof process !== 'undefined' && typeof process.nextTick !== 'undefined') {
   // node.js
-  for(i=0, l=matcherFiles.length; i<l; i++) {
+  for(i = 0, l = matcherFiles.length; i < l; i++) {
     require('./' + matcherFiles[i]);
   }
 } else {
